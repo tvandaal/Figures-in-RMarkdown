@@ -1,0 +1,108 @@
+---
+title: "Create figures for invitation woRkshop (OJO)"
+author: "Tine van Daal"
+date: "6/8/2022"
+output: html_document
+---
+
+```{r load R-packages}
+# These packages should be installed first!
+library(tidyverse)
+library(here)
+```
+
+```{r load data}
+# More information on the data can be found here: http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html
+dino <- read.csv(file = here("Datasaurus_data.csv"), header = FALSE)
+```
+
+```{r create random values}
+#' To make the sampling reproducible
+set.seed(1980)
+
+#' Sample 142 random values for x and y
+random_x <- sample(seq(0, 1, .1), size = 142, replace = TRUE)
+random_y <- sample(seq(0, 4, .05), size = 142, replace = TRUE)
+```
+
+```{r add variables}
+dino <-  
+  dino %>% 
+  #' Create variables 'dino_color', 'random_x' and 'random_y'
+  #' #044466 and #044466 are the edubron colors in HEX-format
+  mutate(dino_color = c(rep("#044466", 78), rep("#044466", 64)),
+         random_x = random_x,
+         random_y = random_y) %>%
+  #' Arrange the data by the values of 'dino_color'
+  arrange(dino_color) %>%
+  #' Create variables 'x' and 'y'
+  mutate(x = c(c(rep(c(0:3), 19), 0, 1), c(rep(c(-3:-1), 21), -3)),
+         y = c(rep(c(1:4), 35), 1, 2))
+```
+
+```{r create plot data mess}
+plot_1 <- 
+  ggplot(dino, aes(x = random_x, y = random_y)) +
+  geom_jitter(aes(color = dino_color)) +
+  scale_color_manual(values = c("#044466", "#930931")) +
+  theme_void() +
+  theme(plot.margin = margin(0, 0, 0, 0, "mm"),
+        legend.position = "none")
+```
+
+```{r create plot data tidy}
+plot_2 <- 
+  ggplot(dino, aes(x = x, y = y, group = dino_color)) +
+  geom_jitter(aes(color = dino_color), width = .1, alpha = .9) +
+  scale_color_manual(values = c("#044466", "#930931")) +
+  theme_void() +
+  theme(plot.margin = margin(0, 0, 0, 0, "mm"),
+        legend.position = "none")
+```
+
+```{r create plot data saurus}
+plot_3 <-
+  ggplot(dino, aes(x = V1, y = V2)) +
+  geom_point(aes(color = dino_color), alpha = .9) +
+  scale_color_manual(values = c("#044466", "#930931")) +
+  theme_void() +
+  theme(plot.margin = margin(0, 0, 0, 0, "mm"),
+        legend.position = "none")
+```
+
+```{r save plots}
+ggsave(plot_1, 
+       device = "png",
+       width = 5,
+       height = 5,
+       unit = "cm",
+       dpi = 320, 
+       file = "data mess.png")
+
+ggsave(plot_2, 
+       device = "png", 
+       width = 5,
+       height = 5,
+       unit = "cm",
+       dpi = 320, 
+       file = "data tidy.png")
+
+ggsave(plot_3, 
+       device = "png", 
+       width = 5,
+       height = 5,
+       unit = "cm",
+       dpi = 320, 
+       file = "data saurus.png")
+```
+
+```{r print session info}
+#' Prints information about all the packages (and version) you used
+#' This is important if you (or someone else) wants to reproduce this work later
+print(sessionInfo())
+```
+
+```{r clean R}
+# Being tidy and remove all objects from the workspace
+rm(list = ls())
+```
